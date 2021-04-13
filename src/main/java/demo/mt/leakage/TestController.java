@@ -20,6 +20,7 @@ import java.util.concurrent.Executors;
 public class TestController {
     private Logger log = LoggerFactory.getLogger(TestController.class);
     Executor executor = Executors.newFixedThreadPool(8);
+    CopyOnWriteArrayList list = new CopyOnWriteArrayList();
 
     private final static String HEADER_TANANT = "TENANT";
 
@@ -31,22 +32,16 @@ public class TestController {
     }
 
     @GetMapping("/test")
-    public List longTimeJob(HttpServletRequest request, @RequestHeader(HEADER_TANANT) String tenant) throws InterruptedException {
+    public void longTimeJob(HttpServletRequest request, @RequestHeader(HEADER_TANANT) String tenant) throws InterruptedException {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        CopyOnWriteArrayList list = new CopyOnWriteArrayList();
-
         executor.execute(() -> {
             RequestContextHolder.setRequestAttributes(requestAttributes);
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1000; i++) {
                 HttpServletRequest request1 = ((ServletRequestAttributes) requestAttributes).getRequest();
                 String uri = request1.getRequestURI();
                 String tenantdiff = request1.getHeader(HEADER_TANANT);
-                if (uri != null) {
-                    log.info("{},uri:{},tenant:{}",i, uri, tenant) ;
-                }
                 if (tenantdiff != null && !tenantdiff.equals(tenant)) {
-                    log.info("{},uri:{},tenant:{}", i, uri, tenant);
+                    log.info("{},uri:{},tenant:{}", i, uri, tenantdiff);
                     list.add(tenantdiff);
                 }
                 try {
@@ -55,10 +50,7 @@ public class TestController {
                     e.printStackTrace();
                 }
             }
-            countDownLatch.countDown();
         });
-        countDownLatch.await();
-        return list;
     }
 
 

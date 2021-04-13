@@ -63,6 +63,30 @@ public class TestControllerTest {
         assertThat(doGet(url,"jill").getBody()).contains("jill");
     }
 
+    @Test
+    public void testWithRestTemplate() throws InterruptedException {
+        int total=1000;
+        CountDownLatch countDownLatch = new CountDownLatch(total+1);
+        executor.submit(()->{
+            String url="http://localhost:" + port + "/test";
+            String body=doGet(url,"tom").getBody();
+            countDownLatch.countDown();
+        });
+
+        for(int i =0;i<total;i++){
+            executor.submit(()->{
+                String url="http://localhost:" + port + "/request";
+                String body=doGet(url,"jill").getBody();
+                countDownLatch.countDown();
+            });
+            Thread.sleep(10L);
+        }
+
+        countDownLatch.await();
+        log.info("test end!!!");
+
+    }
+
 
     @Test
     public void shouldFindLeakage() throws Exception {
