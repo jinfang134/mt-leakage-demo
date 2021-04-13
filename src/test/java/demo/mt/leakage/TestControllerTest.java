@@ -68,26 +68,32 @@ public class TestControllerTest {
 
     @Test
     public void testWithRestTemplate() throws InterruptedException {
-        int total=10000;
+        int total=1000000;
         CountDownLatch countDownLatch = new CountDownLatch(total+1);
         executor.submit(()->{
-            String url="http://localhost:" + port + "/test";
-            String body=doGet(url,"tom").getBody();
-            countDownLatch.countDown();
+            try{
+                String url="http://localhost:" + port + "/test";
+                String body=doGet(url,"tom").getBody();
+            }finally {
+                countDownLatch.countDown();
+            }
         });
 
         for(int i =0;i<total;i++){
             executor.submit(()->{
-                String url="http://localhost:" + port + "/request";
-                String body=doGet(url,"jill").getBody();
-                countDownLatch.countDown();
+                try{
+                    String url="http://localhost:" + port + "/request";
+                    String body=doGet(url,"jill").getBody();
+                }finally {
+                    countDownLatch.countDown();
+                }
             });
         }
-
         countDownLatch.await();
         log.info("test end!!!");
         assertThat(testController.list).asList().isEmpty();
         log.info(testController.list.toString());
+//        Thread.sleep(20000L);
     }
 
 

@@ -10,11 +10,50 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+class RequestHeaderWrapper {
+    private final Map<String, String> headers;
+
+    RequestHeaderWrapper(Map<String, String> map) {
+        this.headers = map;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public static RequestHeaderWrapper wrap(ServletRequestAttributes attributes) {
+        HttpServletRequest request = attributes.getRequest();
+        Map<String, String> map = new HashMap<>();
+        map.put("TENANT", request.getHeader("TENANT"));
+        return new RequestHeaderWrapper(map);
+    }
+}
+
+class RequestHeaderWrapperContext {
+    private RequestHeaderWrapperContext() {
+    }
+
+    private final static ThreadLocal<RequestHeaderWrapper> CONTEXT = new ThreadLocal<RequestHeaderWrapper>();
+
+    public static RequestHeaderWrapper get() {
+        return CONTEXT.get();
+    }
+
+    public static void set(RequestHeaderWrapper requestHeaderWrapper) {
+        CONTEXT.set(requestHeaderWrapper);
+    }
+
+    public static void clear() {
+        CONTEXT.remove();
+    }
+}
+
 
 @RestController
 public class TestController {
@@ -46,6 +85,27 @@ public class TestController {
                 }
                 try {
                     Thread.sleep(100L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    @GetMapping("/fix")
+    public void fixLeakage(@RequestHeader(HEADER_TANANT) String tenant) {
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+
+        executor.execute(() -> {
+            RequestHeaderWrapperContext.set(RequestHeaderWrapper.wrap((ServletRequestAttributes) requestAttributes));
+            for (int i = 0; i < 10000; i++) {
+                String tenantdiff = RequestHeaderWrapperContext.get().getHeaders().get(HEADER_TANANT);
+                if (tenantdiff != null && !tenantdiff.equals(tenant)) {
+                    log.info("{},tenant:{}", i, tenantdiff);
+                    list.add(tenantdiff);
+                }
+                try {
+                    Thread.sleep(10L);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
