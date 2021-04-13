@@ -36,6 +36,9 @@ public class TestControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    TestController testController;
+
     @LocalServerPort
     private int port;
 
@@ -65,7 +68,7 @@ public class TestControllerTest {
 
     @Test
     public void testWithRestTemplate() throws InterruptedException {
-        int total=1000;
+        int total=10000;
         CountDownLatch countDownLatch = new CountDownLatch(total+1);
         executor.submit(()->{
             String url="http://localhost:" + port + "/test";
@@ -79,51 +82,14 @@ public class TestControllerTest {
                 String body=doGet(url,"jill").getBody();
                 countDownLatch.countDown();
             });
-            Thread.sleep(10L);
         }
 
         countDownLatch.await();
         log.info("test end!!!");
-
+        assertThat(testController.list).asList().isEmpty();
+        log.info(testController.list.toString());
     }
 
 
-    @Test
-    public void shouldFindLeakage() throws Exception {
-        CountDownLatch countDownLatch = new CountDownLatch(2);
-        executor.submit(() -> {
-            try {
-                this.mockMvc.perform(
-                        get("/test")
-                                .header("TENANT", "jill"))
-                        .andDo(print()).andExpect(status().isOk())
-                        .andExpect(content().string(containsString("jill")));
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                countDownLatch.countDown();
-            }
-
-        });
-
-        executor.submit(() -> {
-            for (int i = 0; i < 100; i++) {
-                try {
-                    this.mockMvc.perform(
-                            get("/request")
-                                    .header("TENANT", "tom"))
-                            .andDo(print()).andExpect(status().isOk())
-                            .andExpect(content().string(containsString("tom")));
-                    Thread.sleep(100);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            countDownLatch.countDown();
-
-        });
-        countDownLatch.await();
-        log.info(" test end !!!!");
-    }
 
 }
