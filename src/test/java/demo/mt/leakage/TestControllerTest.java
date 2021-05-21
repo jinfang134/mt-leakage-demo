@@ -68,7 +68,7 @@ public class TestControllerTest {
 
     @Test
     public void testWithRestTemplate() throws InterruptedException {
-        int total=1000000;
+        int total=10000;
         CountDownLatch countDownLatch = new CountDownLatch(total+1);
         executor.submit(()->{
             try{
@@ -96,6 +96,52 @@ public class TestControllerTest {
 //        Thread.sleep(20000L);
     }
 
+    @Test
+    public void testWithFix() throws InterruptedException {
+        int total=100000;
+        CountDownLatch countDownLatch = new CountDownLatch(total+1);
+        executor.submit(()->{
+            try{
+                String url="http://localhost:" + port + "/fix";
+                String body=doGet(url,"tom").getBody();
+            }finally {
+                countDownLatch.countDown();
+            }
+        });
+
+        for(int i =0;i<total;i++){
+            executor.submit(()->{
+                try{
+                    String url="http://localhost:" + port + "/request";
+                    String body=doGet(url,"jill").getBody();
+                    Thread.sleep(10L);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } finally {
+                    countDownLatch.countDown();
+                }
+            });
+        }
+        countDownLatch.await();
+        log.info("test end!!!");
+        assertThat(testController.list).asList().isEmpty();
+        log.info(testController.list.toString());
+//        Thread.sleep(20000L);
+    }
+
+
+    @Test
+    public void test(){
+        try{
+            log.info("return");
+//            throw new IllegalArgumentException("sfdf");
+            return ;
+        }catch (Exception e){
+            e.printStackTrace();
+        }finally {
+            log.info("finally");
+        }
+    }
 
 
 }
