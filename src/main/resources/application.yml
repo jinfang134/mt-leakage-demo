@@ -2,3 +2,46 @@
 
 server:
   port: 8000
+
+spring:
+  mvc:
+    static-path-pattern: /**
+  resource:
+    static-locations: classpath:/static/,classpath:/public/
+
+  datasource:
+      url: jdbc:mysql://manage.daotonginfo.com:3306/daotong_test?useUnicode=true&characterEncoding=gbk&zeroDateTimeBehavior=convertToNull
+      username: test
+      password: daotong123
+#      driverClassName: com.mysql.jdbc.Driver
+      driverClassName: com.mysql.cj.jdbc.Driver
+
+minidao:
+    base-package: org.jeecg.modules.jmreport.desreport.dao*
+    db-type: mysql
+
+#JimuReport[上传配置]
+jeecg :
+  # local|minio|alioss
+  uploadType: local
+  # local
+  path :
+    #文件路径
+    upload: /home/zuo_ji/test
+  # alioss
+  oss:
+    endpoint: oss-cn-beijing.aliyuncs.com
+    accessKey: ??
+    secretKey: ??
+    staticDomain: ??
+    bucketName: ??
+  # minio
+  minio:
+    minio_url: http://minio.jeecg.com
+    minio_name: ??
+    minio_pass: ??
+    bucketName: ??
+#输出sql日志
+logging:
+  level:
+    org.jeecg.modules.jmreport : debug

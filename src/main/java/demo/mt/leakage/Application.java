@@ -7,13 +7,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 
-@SpringBootApplication
-@ComponentScan
+@SpringBootApplication(scanBasePackages = {"org.jeecg.modules.jmreport"})
+//@ComponentScan
 public class Application {
 
-    private Logger log= LoggerFactory.getLogger(Application.class);
+    private Logger log = LoggerFactory.getLogger(Application.class);
 
-    public void addInterceptors (InterceptorRegistry registry) {
+    public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new MyCounterInterceptor());
     }
 
