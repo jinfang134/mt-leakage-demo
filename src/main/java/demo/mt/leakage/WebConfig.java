@@ -14,6 +14,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 添加拦截器，配置拦截地址
-        registry.addInterceptor(interceptor).addPathPatterns("/jmreport/**");
+        registry.addInterceptor(interceptor).addPathPatterns("/jmreport/**")
+//        .addPathPatterns("/jmreport/list/**")
+        ;
     }
 }
