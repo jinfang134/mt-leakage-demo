@@ -12,6 +12,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
+import java.util.List;
 
 @Order(1)
 @Component
@@ -72,11 +73,13 @@ public class TokenInterceptor implements HandlerInterceptor {
      */
     public boolean isStaticResource(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        return uri.lastIndexOf(".css") > -1
-                || uri.lastIndexOf(".js") > -1
-                || uri.lastIndexOf(".png") > -1
-                || uri.lastIndexOf(".jpg") > -1
-                || uri.lastIndexOf(".jpeg") > -1
-                || uri.lastIndexOf(".svg") > -1;
+        List<String> statics=Arrays.asList(".css",".js",".png",".jpg",".jpeg",".svg",".woff",".woff2",".ttf");
+        for(String str:statics){
+            if(uri.lastIndexOf(str)>-1){
+                return true;
+            }
+        }
+        return false;
+
     }
 }
