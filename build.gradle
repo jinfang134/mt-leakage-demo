@@ -30,6 +30,7 @@ dependencies {
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
     }
+    implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.7.0'
     compile 'io.minio:minio:8.0.3'
 
     runtime 'mysql:mysql-connector-java:8.0.20'

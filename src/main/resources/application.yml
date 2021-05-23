@@ -3,6 +3,13 @@
 server:
   port: 8000
 
+daotong:
+  jwt:
+      secret: f4e2e52034348f86b67cde581c0f9eb5[www.renren.io]
+      # token有效时长，7天，单位秒
+      expire: 604800
+      header: token
+
 spring:
   mvc:
     static-path-pattern: /**
@@ -12,7 +19,7 @@ spring:
   datasource:
       url: jdbc:mysql://manage.daotonginfo.com:3306/daotong_test?useUnicode=true&characterEncoding=gbk&zeroDateTimeBehavior=convertToNull
       username: test
-      password: daotong123
+      password: daotong123!@#
 #      driverClassName: com.mysql.jdbc.Driver
       driverClassName: com.mysql.cj.jdbc.Driver
 

@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 
-@Component
+//@Component
 public class MyInterceptor implements EmptyInterceptor {
     @Override
     public boolean onInsert(Field[] fields, Object obj) {
